@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 
+/* 初始化 ncurses，创建三个窗口：对话区 / 状态栏 / 输入栏 */
 void tui_init(App *a) {
     initscr();
     raw();
@@ -16,6 +17,7 @@ void tui_init(App *a) {
     init_pair(4, COLOR_BLACK, COLOR_WHITE);
     if (!getcwd(a->cwd, sizeof(a->cwd)))
         snprintf(a->cwd, sizeof(a->cwd), "/");
+    /* 把 /home/xxx 缩写成 ~xxx */
     const char *home = getenv("HOME");
     if (!home) home = "/root";
     int hl = strlen(home);
@@ -34,6 +36,7 @@ void tui_init(App *a) {
     scrollok(a->dialog_win, TRUE);
 }
 
+/* 释放窗口资源 */
 void tui_cleanup(App *a) {
     delwin(a->dialog_win);
     delwin(a->status_win);
@@ -41,6 +44,7 @@ void tui_cleanup(App *a) {
     endwin();
 }
 
+/* 状态栏：左边路径，右边时间 */
 void tui_draw_status(App *a) {
     werase(a->status_win);
     int c = getmaxx(a->status_win);
@@ -59,6 +63,7 @@ void tui_draw_status(App *a) {
     wrefresh(a->status_win);
 }
 
+/* 输入栏：显示 > 提示符和当前输入 */
 void tui_draw_input(App *a) {
     werase(a->input_win);
     int c = getmaxx(a->input_win);
@@ -69,6 +74,7 @@ void tui_draw_input(App *a) {
     wrefresh(a->input_win);
 }
 
+/* 对话区：从倒数第 my/2 条开始显示，别太靠下 */
 void tui_draw_dialog(App *a) {
     werase(a->dialog_win);
     int my, mx;
@@ -105,6 +111,7 @@ void tui_draw_dialog(App *a) {
     wrefresh(a->dialog_win);
 }
 
+/* 一键刷新全部 */
 void tui_refresh_all(App *a) {
     tui_draw_status(a);
     tui_draw_dialog(a);

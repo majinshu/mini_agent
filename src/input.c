@@ -3,6 +3,7 @@
 #include "history.h"
 #include <string.h>
 
+/* 处理按键：回车发消息，退格删字，Ctrl-C清空 */
 void input_handle(App *a, int ch) {
     if (ch == ERR) return;
     switch (ch) {
@@ -14,6 +15,7 @@ void input_handle(App *a, int ch) {
                 Command c;
                 CmdType ct = command_parse(a->input_buf, &c);
                 if (ct == CMD_NONE) {
+                    /* 不是命令就返回固定回复 */
                     const char *r = "## `429` Too many Requests\n\n**服务器繁忙，请稍后再试。**";
                     app_add_message(a, ROLE_ASSISTANT, r);
                     history_log_fixed_reply();
@@ -32,7 +34,7 @@ void input_handle(App *a, int ch) {
                 a->input_buf[a->input_len] = '\0';
             }
             break;
-        case 3:
+        case 3:  /* Ctrl-C 清空当前输入 */
             a->input_buf[0] = '\0';
             a->input_len = 0;
             break;

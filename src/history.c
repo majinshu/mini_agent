@@ -3,11 +3,13 @@
 #include <stdlib.h>
 #include <string.h>
 
+/* 确保 log 目录存在，没有就建个文件占位 */
 static void ensure() {
     FILE *f = fopen(HISTORY_PATH, "a");
     if (f) fclose(f);
 }
 
+/* JSON 字符串转义，处理引号、换行、控制字符 */
 static char *escape(const char *s) {
     if (!s) return strdup("");
     int l = strlen(s), cap = l*6+1;
@@ -35,6 +37,7 @@ static char *escape(const char *s) {
     return o;
 }
 
+/* 记录用户消息到 JSONL */
 void history_log_user(const char *r) {
     ensure();
     FILE *f=fopen(HISTORY_PATH,"a");
@@ -70,6 +73,7 @@ void history_log_fixed_reply(void) {
     free(e); fclose(f);
 }
 
+/* 从 JSONL 恢复历史消息到内存 */
 void history_load(App *a) {
     FILE *f=fopen(HISTORY_PATH,"r");
     if(!f)return;

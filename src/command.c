@@ -5,6 +5,7 @@
 #include <string.h>
 #include <stdlib.h>
 
+/* 解析 "2-5" 或 "3" 这种行号范围 */
 static int parse_range(const char *s, int *st, int *ed) {
     if (!s || !*s) return 0;
     if (sscanf(s, "%d-%d", st, ed) == 2 && *st > 0 && *ed >= *st) return 1;
@@ -12,6 +13,7 @@ static int parse_range(const char *s, int *st, int *ed) {
     return 0;
 }
 
+/* 解析 /xxx 命令，提取命令名和参数 */
 CmdType command_parse(const char *in, Command *c) {
     memset(c, 0, sizeof(*c));
     c->type = CMD_NONE;
@@ -65,6 +67,7 @@ CmdType command_parse(const char *in, Command *c) {
     return CMD_UNKNOWN;
 }
 
+/* 执行 /read：读文件，显示在对话区 */
 static void cmd_read(App *a, const Command *c) {
     ToolOutput o;
     tool_read_file(c->arg1, c->has_line_range ? c->line_start : -1,
@@ -87,6 +90,7 @@ static void cmd_read(App *a, const Command *c) {
     }
 }
 
+/* /write：追加内容到文件 */
 static void cmd_write(App *a, const Command *c) {
     ToolOutput o;
     tool_write_file(c->arg1, c->arg2, &o);
@@ -98,6 +102,7 @@ static void cmd_write(App *a, const Command *c) {
     app_add_message(a, ROLE_TOOL, m);
 }
 
+/* /exec：执行 shell 命令，10秒超时 */
 static void cmd_exec(App *a, const Command *c) {
     ToolOutput o;
     tool_exec_cmd(c->arg1, &o);
@@ -113,6 +118,7 @@ static void cmd_exec(App *a, const Command *c) {
         app_add_message(a, ROLE_TOOL, o.output);
 }
 
+/* 根据命令类型分发 */
 void command_execute(App *a, const Command *c, const char *r) {
     (void)r;
     switch (c->type) {
